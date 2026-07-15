@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super SAC - Sistema Integrado de Ventas e Inventario</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- AUTHENTICATION SCREEN -->
+  <div id="login-view" class="view-panel active">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+            </svg>
+          </div>
+          <h2 class="auth-title">Super SAC</h2>
+          <p class="auth-subtitle">Gestión Integral de Ventas e Inventario</p>
+        </div>
+
+        <div id="login-error" style="display: none; padding: 12px 16px; margin-bottom: 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; color: var(--danger); background-color: var(--danger-light); text-align: left; border-left: 4px solid var(--danger);">
+          Credenciales inválidas
+        </div>
+
+        <form id="login-form" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="username">Usuario</label>
+            <div class="form-input-container">
+              <span class="form-input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+              </span>
+              <input class="form-input form-input-with-icon" type="text" id="username" required placeholder="Ingrese su usuario">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password">Contraseña</label>
+            <div class="form-input-container">
+              <span class="form-input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                </svg>
+              </span>
+              <input class="form-input form-input-with-icon" type="password" id="password" required placeholder="Ingrese su contraseña">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
+            Iniciar Sesión
+          </button>
+        </form>
+
+        <div style="margin-top: 24px; padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background-color: var(--bg-app); text-align: left; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+          <strong style="color: var(--text-main);">Credenciales de Demostración:</strong><br>
+          • Cajero: <code>cajero</code> / <code>cajero123</code><br>
+          • Administrador: <code>admin</code> / <code>admin123</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP LAYOUT -->
+  <div id="app-layout" class="app-layout" style="display: none;">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+          </svg>
+        </div>
+        <span class="brand-name">Super SAC</span>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="menu-item active" id="nav-dashboard">
+          <button onclick="showView('dashboard-view')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            Dashboard KPI
+          </button>
+        </li>
+        <li class="menu-item" id="nav-ventas">
+          <button onclick="showView('ventas-view')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+            </svg>
+            Registrar Venta
+          </button>
+        </li>
+        <li class="menu-item" id="nav-inventario">
+          <button onclick="showView('inventario-view')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
+            Inventario
+          </button>
+        </li>
+        <li class="menu-item" id="nav-reclamos">
+          <button onclick="showView('reclamos-view')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+            </svg>
+            Reclamos
+          </button>
+        </li>
+        <li class="menu-item" id="nav-consola">
+          <button onclick="showView('consola-view')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+            Base de Datos SQL
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-user">
+        <div class="user-info">
+          <span class="user-name" id="user-display-name">Administrador</span>
+          <span class="user-role" id="user-display-role">admin</span>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Cerrar Sesión">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 18px; height: 18px;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+          </svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <header class="main-header">
+        <div class="header-title">
+          <h1 id="view-title">Dashboard Principal</h1>
+        </div>
+        <div class="header-meta">
+          <span class="db-pill">SQLite Conectado: BaseDatos/SuperSAC.db</span>
+        </div>
+      </header>
+
+      <main class="main-content">
+        
+        <!-- MODULE: DASHBOARD -->
+        <div id="dashboard-view" class="view-panel">
+          <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+            <!-- 1. PRODUCCIÓN -->
+            <div class="kpi-card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <h3 style="font-size: 12px; color: var(--text-muted); font-weight:700;">1. PRODUCCIÓN</h3>
+                <span style="color: var(--success); font-weight:bold; font-size:11px;">Métricas Volumen</span>
+              </div>
+              <div style="width:100%; border-top: 1px solid var(--border-color); padding-top:8px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                  <span style="font-size:13px; color:var(--text-muted);">Ventas realizadas:</span>
+                  <strong style="font-size:14px;" id="kpi-ventas-realizadas">0</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="font-size:13px; color:var(--text-muted);">Clientes atendidos:</span>
+                  <strong style="font-size:14px;" id="kpi-clientes-atendidos">0</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. PRODUCTIVIDAD -->
+            <div class="kpi-card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <h3 style="font-size: 12px; color: var(--text-muted); font-weight:700;">2. PRODUCTIVIDAD</h3>
+                <span style="color: var(--info); font-weight:bold; font-size:11px;">Rendimiento</span>
+              </div>
+              <div style="width:100%; border-top: 1px solid var(--border-color); padding-top:8px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px; flex-direction:column;">
+                  <span style="font-size:11px; color:var(--text-muted);">Ventas por cajero:</span>
+                  <strong style="font-size:12px; color:var(--primary);" id="kpi-ventas-cajero">-</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:2px;">
+                  <span style="font-size:12px; color:var(--text-muted);">Productos en sistema:</span>
+                  <strong style="font-size:13px;" id="kpi-productos-registrados">0</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. EFICACIA -->
+            <div class="kpi-card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <h3 style="font-size: 12px; color: var(--text-muted); font-weight:700;">3. EFICACIA</h3>
+                <span style="color: var(--primary); font-weight:bold; font-size:11px;">Calidad/Logros</span>
+              </div>
+              <div style="width:100%; border-top: 1px solid var(--border-color); padding-top:8px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                  <span style="font-size:13px; color:var(--text-muted);">Ventas sin errores:</span>
+                  <strong style="font-size:14px; color:var(--success);" id="kpi-ventas-sin-errores">100%</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="font-size:13px; color:var(--text-muted);">Reclamos resueltos:</span>
+                  <strong style="font-size:14px;" id="kpi-reclamos-solucionados">0</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. EFICIENCIA -->
+            <div class="kpi-card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <h3 style="font-size: 12px; color: var(--text-muted); font-weight:700;">4. EFICIENCIA</h3>
+                <span style="color: var(--warning); font-weight:bold; font-size:11px;">Recursos/Tiempo</span>
+              </div>
+              <div style="width:100%; border-top: 1px solid var(--border-color); padding-top:8px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                  <span style="font-size:13px; color:var(--text-muted);">Tiempo prom. atención:</span>
+                  <strong style="font-size:14px;" id="kpi-tiempo-atencion">0 min</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="font-size:13px; color:var(--text-muted);">Errores en cobro:</span>
+                  <strong style="font-size:14px; color:var(--danger);" id="kpi-errores-cobro">0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trend Chart + tables row -->
+          <div class="dashboard-grid-layout">
+            <div style="display: flex; flex-direction: column; gap: 28px;">
+              <!-- Sales Trend Chart -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Tendencia de Ventas (Historial de Boletas)</span>
+                </div>
+                <div class="card-body" id="sales-chart-wrapper">
+                  <!-- Dynamic SVG Chart -->
+                </div>
+              </div>
+
+              <!-- Recent Sales -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Historial Reciente de Ventas</span>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Comprobante</th>
+                          <th>Fecha</th>
+                          <th>Total Neto</th>
+                          <th>Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody id="recent-sales-tbody">
+                        <!-- Dynamic lines -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <!-- Stock alert list -->
+              <div class="card" style="border: 1px solid rgba(239, 68, 68, 0.15);">
+                <div class="card-header" style="background-color: var(--danger-light);">
+                  <span class="card-title" style="color: #b91c1c;">Alertas críticas de Stock</span>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Producto</th>
+                          <th>Disponible</th>
+                          <th>Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody id="low-stock-tbody">
+                        <!-- Dynamic items -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE: SALES POS -->
+        <div id="ventas-view" class="view-panel">
+          <div class="pos-container">
+            <div>
+              <div class="search-box">
+                <span class="search-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 22px; height: 22px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z" />
+                  </svg>
+                </span>
+                <input class="search-input" type="text" id="search-pos" placeholder="Filtrar catálogo de productos..." oninput="renderCatalog(this.value)">
+              </div>
+
+              <div class="product-catalog" id="product-catalog">
+                <!-- Products -->
+              </div>
+            </div>
+
+            <!-- Cart Card -->
+            <div class="card cart-card">
+              <div class="card-header">
+                <span class="card-title">Módulo de Compra</span>
+              </div>
+              <div class="card-body">
+                <div class="cart-items-list" id="cart-items-list">
+                  <!-- Cart details -->
+                </div>
+
+                <!-- Payment Method Select -->
+                <div class="form-group" style="margin-top: 16px;">
+                  <label class="form-label" style="font-size: 11px;">Método de Pago</label>
+                  <select class="form-input" id="cart-payment-method" style="padding: 8px 12px; font-size: 13px; font-weight:600;">
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
+                    <option value="Yape/Plin">Yape / Plin</option>
+                  </select>
+                </div>
+
+                <div class="cart-totals">
+                  <div class="totals-row">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">S/. 0.00</span>
+                  </div>
+                  <div class="totals-row">
+                    <span>IGV (18%)</span>
+                    <span id="cart-igv">S/. 0.00</span>
+                  </div>
+                  <div class="totals-row grand-total">
+                    <span>Importe Total</span>
+                    <span id="cart-total">S/. 0.00</span>
+                  </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="processSale()">
+                  Completar Venta y Generar Boleta
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE: INVENTORY -->
+        <div id="inventario-view" class="view-panel">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Catálogo y Control de Inventario</span>
+              <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="openAddProductModal()">
+                + Registrar Producto
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Descripción del Producto</th>
+                      <th>Valor Venta</th>
+                      <th>Existencias</th>
+                      <th>Operaciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventory-tbody">
+                    <!-- Dynamic -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE: CLAIMS -->
+        <div id="reclamos-view" class="view-panel">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title" id="reclamos-header-title">Historial de Incidencias / Reclamos</span>
+              <!-- Botón solo visible para Cajero (registro) -->
+              <button id="btn-generar-reclamo" class="btn btn-primary" style="width: auto; padding: 10px 20px; display: none;" onclick="openAddReclaimModal()">
+                + Registrar Incidencia
+              </button>
+              <!-- Etiqueta solo visible para Administrador (solo consulta) -->
+              <span id="label-reclamos-admin" style="display: none; font-size: 13px; font-weight: 600; color: var(--text-muted); background: var(--bg-app); padding: 8px 14px; border-radius: 9999px; border: 1px solid var(--border-darker);">
+                Solo Consulta y Cierre
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>ID Ticket</th>
+                      <th>Cliente</th>
+                      <th>Detalle del Suceso</th>
+                      <th>Estado</th>
+                      <th>Acción Operativa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reclaims-tbody">
+                    <!-- Dynamic -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE: DATABASE WORKBENCH -->
+        <div id="consola-view" class="view-panel">
+          <div class="card" style="margin-bottom: 28px;">
+            <div class="card-header">
+              <span class="card-title">Visor Físico de Base de Datos Relacional</span>
+            </div>
+            <div class="card-body">
+              <div class="db-tabs">
+                <button class="db-tab-btn active" onclick="renderDBTableViewer('Producto')">Producto</button>
+                <button class="db-tab-btn" onclick="renderDBTableViewer('Usuario')">Usuario</button>
+                <button class="db-tab-btn" onclick="renderDBTableViewer('Venta')">Venta</button>
+                <button class="db-tab-btn" onclick="renderDBTableViewer('Detalle_Venta')">Detalle_Venta</button>
+                <button class="db-tab-btn" onclick="renderDBTableViewer('Reclamo')">Reclamo</button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table" style="background-color: var(--bg-app); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                  <thead>
+                    <tr id="db-table-headers">
+                      <!-- Columns -->
+                    </tr>
+                  </thead>
+                  <tbody id="db-table-body">
+                    <!-- Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Terminal Interactivo SQLite</span>
+            </div>
+            <div class="card-body">
+              <div class="sql-console">
+                <div class="console-header">
+                  <span>BaseDatos/SuperSAC.db - SQLite 3 Console</span>
+                  <span style="color: var(--success); font-weight:700;">● Online</span>
+                </div>
+                <div class="console-body" id="console-body">
+                  <!-- Term -->
+                </div>
+                <div class="console-input-line">
+                  <span class="console-prompt">sqlite&gt;</span>
+                  <input type="text" class="console-input" id="console-input" placeholder="SELECT * FROM Producto; (Presione enter)" onkeydown="handleConsoleKey(event)">
+                </div>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <p style="font-size: 14px; font-weight: 700; color:var(--text-main); margin-bottom: 10px;">Consultas Rápidas para Demostración:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                  <button class="btn btn-secondary" style="width: auto; padding: 8px 16px; font-size: 13px;" onclick="runQuickQuery('SELECT * FROM Producto WHERE stock <= 5;')">
+                    Filtrar Bajo Stock
+                  </button>
+                  <button class="btn btn-secondary" style="width: auto; padding: 8px 16px; font-size: 13px;" onclick="runQuickQuery('SELECT * FROM Reclamo WHERE estado = \'Pendiente\';')">
+                    Ver Incidencias Pendientes
+                  </button>
+                  <button class="btn btn-secondary" style="width: auto; padding: 8px 16px; font-size: 13px;" onclick="runQuickQuery('UPDATE Producto SET stock = 60 WHERE id_producto = 104;')">
+                    Actualizar Stock de Arroz a 60
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODALS -->
+  <div class="modal-overlay" id="inventory-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="card-title">Ajustar Existencia del Producto</h3>
+        <button class="btn-logout" onclick="closeInventoryModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 15px; margin-bottom: 20px;">
+          Producto Seleccionado: <strong id="edit-stock-product-name">-</strong>
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="edit-stock-input">Cantidad Física en Estante</label>
+          <input type="number" id="edit-stock-input" class="form-input" min="0">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" style="width: auto;" onclick="closeInventoryModal()">Cancelar</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="saveStockAdjustment()">Guardar Ajuste</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD PRODUCT -->
+  <div class="modal-overlay" id="add-product-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="card-title">Registrar Nuevo Producto</h3>
+        <button class="btn-logout" onclick="closeAddProductModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="new-product-name">Descripción/Nombre</label>
+          <input type="text" id="new-product-name" class="form-input" placeholder="ej. Detergente Opal 1kg">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-product-category">Categoría</label>
+          <select id="new-product-category" class="form-input">
+            <option value="Abarrotes">Abarrotes</option>
+            <option value="Bebidas">Bebidas</option>
+            <option value="Lácteos">Lácteos</option>
+            <option value="Limpieza">Limpieza</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-product-price">Precio Público (S/.)</label>
+          <input type="number" id="new-product-price" class="form-input" min="0.10" step="0.10" placeholder="5.50">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-product-stock">Stock de Apertura</label>
+          <input type="number" id="new-product-stock" class="form-input" min="0" placeholder="30">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" style="width: auto;" onclick="closeAddProductModal()">Cancelar</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="saveNewProduct()">Registrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD RECLAIM -->
+  <div class="modal-overlay" id="reclaim-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="card-title">Generar Ticket de Incidencia</h3>
+        <button class="btn-logout" onclick="closeReclaimModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="reclaim-client">Cliente Afectado</label>
+          <input type="text" id="reclaim-client" class="form-input" placeholder="Nombre y Apellidos">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reclaim-desc">Descripción del Inconveniente</label>
+          <textarea id="reclaim-desc" class="form-input" style="height: 110px; resize: vertical;" placeholder="Describa el problema..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" style="width: auto;" onclick="closeReclaimModal()">Cancelar</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="saveNewReclaim()">Registrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TICKET BOLETA -->
+  <div class="modal-overlay" id="ticket-modal">
+    <div class="modal" style="max-width: 380px;">
+      <div class="modal-header">
+        <h3 class="card-title">Comprobante de Venta Emitido</h3>
+        <button class="btn-logout" onclick="closeTicketModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="background-color: #f8fafc; padding: 20px;">
+        <div id="ticket-content">
+          <!-- Printable receipt -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" style="width: auto;" onclick="closeTicketModal()">Cerrar</button>
+        <button class="btn btn-primary" style="width: auto;" onclick="window.print()">Imprimir Comprobante</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="funciones.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      initDB();
+      if (checkSession()) {
+        setupAppLayout();
+        showView(currentUser.rol === 'Cajero' ? 'ventas-view' : 'dashboard-view');
+      } else {
+        showView('login-view');
+      }
+    });
+
+    function handleLoginSubmit(event) {
+      event.preventDefault();
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      
+      const res = login(user, pass);
+      if (res.success) {
+        document.getElementById('login-error').style.display = 'none';
+        setupAppLayout();
+        showView(currentUser.rol === 'Cajero' ? 'ventas-view' : 'dashboard-view');
+      } else {
+        const errDiv = document.getElementById('login-error');
+        errDiv.innerText = res.message;
+        errDiv.style.display = 'block';
+      }
+    }
+
+    function setupAppLayout() {
+      document.getElementById('login-view').style.display = 'none';
+      const app = document.getElementById('app-layout');
+      app.style.display = 'flex';
+
+      document.getElementById('user-display-name').innerText = currentUser.nombre;
+      document.getElementById('user-display-role').innerText = currentUser.rol;
+
+      const isCajero = currentUser.rol === 'Cajero';
+
+      if (isCajero) {
+        // Cajero: solo Ventas y Reclamos
+        document.getElementById('nav-dashboard').style.display = 'none';
+        document.getElementById('nav-inventario').style.display = 'none';
+        document.getElementById('nav-consola').style.display = 'none';
+        document.getElementById('nav-ventas').style.display = 'block';
+
+        // Reclamos: cajero puede registrar incidencias
+        document.getElementById('btn-generar-reclamo').style.display = 'inline-flex';
+        document.getElementById('label-reclamos-admin').style.display = 'none';
+        document.getElementById('reclamos-header-title').innerText = 'Registrar Incidencia del Cliente';
+      } else {
+        // Administrador: Dashboard, Inventario, Reclamos (consulta), Consola
+        document.getElementById('nav-dashboard').style.display = 'block';
+        document.getElementById('nav-inventario').style.display = 'block';
+        document.getElementById('nav-consola').style.display = 'block';
+        document.getElementById('nav-ventas').style.display = 'none';
+
+        // Reclamos: admin solo consulta y cierra
+        document.getElementById('btn-generar-reclamo').style.display = 'none';
+        document.getElementById('label-reclamos-admin').style.display = 'inline-flex';
+        document.getElementById('reclamos-header-title').innerText = 'Gestión y Seguimiento de Reclamos';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -129,7 +129,23 @@ function checkSession() {
 }
 
 // --- Routing & Navigation ---
+function toggleSidebar(open) {
+  const sidebar = document.getElementById('app-sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (sidebar && overlay) {
+    if (open) {
+      sidebar.classList.add('open');
+      overlay.classList.add('active');
+    } else {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    }
+  }
+}
+
 function showView(viewId) {
+  toggleSidebar(false);
+
   document.querySelectorAll('.view-panel').forEach(panel => {
     panel.classList.remove('active');
   });
